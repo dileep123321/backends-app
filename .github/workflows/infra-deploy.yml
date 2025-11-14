@@ -11,26 +11,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.0  # use latest stable version
 
+      # 3️⃣ Authenticate with GCP
+      - name: Setup GCP credentials
+        run: echo "${{ secrets.GCP_CREDENTIALS }}" > $HOME/gcp-key.json
+
+      - name: Configure gcloud
+        run: |
+          gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+          gcloud config set project winged-idiom-477303-t8
+
+      # 4️⃣ Terraform Init
       - name: Terraform Init
-        working-directory: infra/terraform
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: terraform init
+        run: terraform -chdir=infra/terraform init
 
+      # 5️⃣ Terraform Plan
       - name: Terraform Plan
-        working-directory: infra/terraform
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: terraform plan -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
+        run: terraform -chdir=infra/terraform plan -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
 
+      # 6️⃣ Terraform Apply
       - name: Terraform Apply
-        working-directory: infra/terraform
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: terraform apply -auto-approve -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
+        run: terraform -chdir=infra/terraform apply -auto-approve -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
+
