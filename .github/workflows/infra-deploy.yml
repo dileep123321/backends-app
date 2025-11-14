@@ -37,4 +37,3 @@ jobs:
           GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         run: |
           terraform apply -auto-approve -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
-

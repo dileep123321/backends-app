@@ -41,4 +41,3 @@ jobs:
             docker stop backend-app || true
             docker rm backend-app || true
             docker run -d -p 80:8080 --name backend-app backend-app:latest
-
