@@ -1,0 +1,44 @@
+name: Deploy App
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "app/**"
+      - "Dockerfile"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t backend-app:latest .
+
+      - name: Save Docker image to tar
+        run: docker save backend-app:latest | gzip > backend-app.tar.gz
+
+      - name: Copy to VM
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          source: "backend-app.tar.gz"
+          target: "~/"
+
+      - name: SSH - Run Docker
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.GCP_VM_IP }}
+          username: ${{ secrets.GCP_VM_USER }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          script: |
+            gunzip -f backend-app.tar.gz
+            docker load < backend-app.tar
+            docker stop backend-app || true
+            docker rm backend-app || true
+            docker run -d -p 80:8080 --name backend-app backend-app:latest
+
