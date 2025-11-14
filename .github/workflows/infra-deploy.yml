@@ -21,19 +21,16 @@ jobs:
         working-directory: infra/terraform
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: |
-          terraform init
+        run: terraform init
 
       - name: Terraform Plan
         working-directory: infra/terraform
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: |
-          terraform plan -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
+        run: terraform plan -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
 
       - name: Terraform Apply
         working-directory: infra/terraform
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-        run: |
-          terraform apply -auto-approve -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
+        run: terraform apply -auto-approve -var="gcp_credentials=${{ secrets.GCP_CREDENTIALS }}"
