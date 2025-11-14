@@ -1,0 +1,18 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+crash.log
+*.tfvars
+
+# Keys / Sensitive
+*.json
+*.key
+*.pem
+*.yml
+
+# Python
+__pycache__/
+
+# Docker
+*.tar.gz
